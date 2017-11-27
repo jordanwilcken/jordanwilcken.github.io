@@ -1,0 +1,38 @@
+#outer-circle {
+  border: 1px Solid Black;
+}
+
+main {
+  margin: auto;
+  width: 900px;
+}
+
+svg {
+  display: block;
+}
+
+.error-message {
+    color: red;
+    margin-left: 10px;
+}
+
+.wheel-view {
+    margin: auto;
+}
+
+.input-label {
+  margin-right: 10px;
+}
+
+.row {
+    display: block;
+    margin: 10px 0;
+}
+
+.left-column-input {
+    margin-right: 10px;
+}
+
+.wheelInput {
+  margin-left: 5px;
+}
