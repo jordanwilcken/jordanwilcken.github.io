@@ -11589,7 +11589,10 @@ var _user$project$WheelForm$view = function (_p27) {
 																		_elm_lang$html$Html$select,
 																		{
 																			ctor: '::',
-																			_0: _elm_lang$html$Html_Events$onInput(_user$project$WheelForm$unitStringToMsg),
+																			_0: A2(
+																				_elm_lang$html$Html_Events$on,
+																				'change',
+																				A2(_elm_lang$core$Json_Decode$map, _user$project$WheelForm$unitStringToMsg, _elm_lang$html$Html_Events$targetValue)),
 																			_1: {ctor: '[]'}
 																		},
 																		{
