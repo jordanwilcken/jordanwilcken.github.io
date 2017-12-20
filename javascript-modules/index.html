@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>javascript modules</title>
+    <link rel="stylesheet" href="css.css" />
+    <meta charset="utf-8" />
+</head>
+<body style="font-family:'Segoe UI'">
+    <main>
+        <h1>How do I turn my compiled Elm into a javascript module?</h1>
+        <p>Javascript modules come in two flavors (that I know of): commonjs modules and es6 modules. I don't know why you'd pick one flavor over the other, but I will show you how to do both.</p>
+
+        <h2>How do I turn my compiled Elm into a commonjs module?</h2>
+        <p>Your compiled Elm already is a commonjs module - surprise! The Elm compiler does this for you. Right out of the box. No configuration necessary. Just add a new require statement to your Elm-consuming javascript, and you're off to the races (I have assumed that your compiled Elm lives in a file named compiled-elm.js):</p>
+        <img src="require.jpg" alt="require statements" />
+        <p>If your application is made up of es6 modules then you will probably want to import your Elm javascript module like this:</p>
+        <img src="import.jpg" alt="import statements"/>
+        <p>..but so far as I know it's perfectly acceptable to mix import and require statements, so you could just keep going with require if you want.</p>
+
+        <p>Achievement unlocked! You are now consuming your Elm as a commonjs module. You will only need the next section if you would prefer to have your compiled Elm in the style of an es6 module.</p>
+
+
+        <h2>How do I turn my compiled Elm into an es6 module?</h2>
+        <p>Step 1: Compile your Elm. <span id="hide-after-click-2">If you need help with this step, <a href="#" role="button" id="compile-help-link-2">click here</a>.</span></p>
+        
+        <div style="display:none" id="compile-help-2">
+            <p>Step 1a: Copy the Elm below into a file named Main.elm:</p>
+            <pre>
+import Html exposing (..)
+
+view : Model -> Html Msg
+view model =
+    text "Hello World!"
+
+type alias Model =
+    {
+    }
+
+init : ( Model, Cmd Msg )
+init =
+    ( { }, Cmd.none )
+
+type Msg =
+    Msg
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    ( model, Cmd.none )
+
+main : Program Never Model Msg
+main = Html.program
+    { init = init, update = update, view = view, subscriptions = \_ -> Sub.none }
+            </pre>
+            <p>Step 1b: in your favorite command shell, run</p>
+            <code>elm-make Main.elm --output compiled-elm.js</code>
+            <p>(this will only work if Elm is installed)</p>
+        </div>
+
+        <p>Step 2: Open compiled-elm.js (I have assumed that your compiled Elm lives in a file named compiled-elm.js) in your favorite text editor and change it like so:</p>
+        <img src="es6-module.jpg" alt="add export default" />
+        <p>Boom! compiled-elm.js now contains one legitimate es6 module.</p>
+        <p>You'll probably import your new es6 module like this:</p>
+        <img src="import-es6.jpg" alt="consume es6 module" />
+
+        <p>Step 3 (optional, but a good idea): Find a resource that you like, and learn more about es6 modules. You can only go so far without a solid foundation beneath you.</p>
+
+    </main>
+
+    <script>
+       document.getElementById("compile-help-link-2").onclick = function() {
+            document.getElementById("compile-help-2").style.removeProperty("display");
+            document.getElementById("hide-after-click-2").style.setProperty("display", "none");
+            return false;
+       };
+    </script>
+</body>
+</html>
