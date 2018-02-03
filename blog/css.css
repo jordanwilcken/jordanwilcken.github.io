@@ -9,3 +9,7 @@ body {
 blockquote {
     color: blueviolet;
 }
+
+img {
+    max-width: 100%;
+}
