@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <title>Anniversary #14</title>
+    <style>
+        .slide-button {
+            background: transparent;
+            border: none;
+            color: grey;
+            cursor: pointer;
+            font-size: 3em;
+            font-weight: bold;
+            position: relative;
+            top: 42%;
+        }
+        #slide-container {
+            background-image: url("slides.jpg");
+            background-repeat: repeat-x;
+            height: 430px;
+            margin: 5% auto;
+            position: relative;
+        }
+        #next-button {
+            left: 83%;
+        }
+
+    </style>
+  </head>
+  <body>
+  <div id="slide-container">
+    <button id="previous-button" class="slide-button">&lt;</button>
+    <button id="next-button" class="slide-button">&gt;</button>
+  </div>
+
+  <script>
+    window.onload = function() {
+        var
+            slideContainer = document.getElementById('slide-container'),
+            previousButton = document.getElementById('previous-button'),
+            nextButton = document.getElementById('next-button');
+
+        slideContainer.style.backgroundPositionX = 0;
+        slideContainer.style.width = 680;
+
+        previousButton.onclick = function() {
+            slideContainer.style.transition = "background-position-x 0.4s linear 0s";
+            slideContainer.style.backgroundPositionX = parseInt(slideContainer.style.backgroundPositionX) + parseInt(slideContainer.style.width) + "px";
+        }
+
+        nextButton.onclick = function() {
+            slideContainer.style.transition = "background-position-x 0.4s linear 0s";
+            slideContainer.style.backgroundPositionX = parseInt(slideContainer.style.backgroundPositionX) - parseInt(slideContainer.style.width) + "px";
+        }
+    };
+  </script>
+  </body>
+</html>
