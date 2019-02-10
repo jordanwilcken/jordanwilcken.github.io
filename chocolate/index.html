@@ -1,0 +1,24 @@
+<style>
+    body {
+        margin: auto;
+        width: 50%;
+    }
+    img {
+        width: 100%;
+    }
+</style>
+<img src="choco1.jpg">
+<script>
+    var imageNumber = 1;
+    var totalImages = 10;
+    function changeImage() {
+        imageNumber += 1;
+        if (imageNumber > totalImages) {
+            imageNumber = 1;
+        }
+        document.querySelector('img').src = `choco${imageNumber}.jpg`;
+    }
+    window.onload = function() {
+        setInterval(changeImage, 2000);
+    };
+</script>
