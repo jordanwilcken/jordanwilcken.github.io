@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get Out of the Cave</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+      letter-spacing: 0.05em;
+      color: #c9a84c;
+    }
+
+    #instructions {
+      font-size: 1rem;
+      color: #b0b0c8;
+      text-align: center;
+      margin-bottom: 0.5rem;
+      max-width: 480px;
+      line-height: 1.5;
+    }
+
+    #timer {
+      font-size: 2.5rem;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      color: #c9a84c;
+      letter-spacing: 0.05em;
+    }
+
+    #timer.urgent { color: #e05555; }
+
+    #timer-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    #timer {
+      margin-bottom: 0;
+    }
+
+    #done-btn {
+      padding: 0.4rem 0.85rem;
+      background: none;
+      border: 1px solid #c9a84c;
+      color: #c9a84c;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    #done-btn:hover { background: #c9a84c; color: #1a1a2e; }
+
+    #app {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    #add-form {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    #new-item-input {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #16213e;
+      color: #e0e0e0;
+      font-size: 1rem;
+    }
+
+    #new-item-input:focus { outline: 2px solid #c9a84c; border-color: transparent; }
+
+    #add-btn {
+      padding: 0.5rem 1rem;
+      background: #c9a84c;
+      color: #1a1a2e;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #add-btn:hover { background: #e0bf6a; }
+
+    #list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #16213e;
+      border: 1px solid #2a2a4a;
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+    }
+
+    .item input[type="checkbox"] {
+      width: 1.1rem;
+      height: 1.1rem;
+      accent-color: #c9a84c;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .item-text {
+      flex: 1;
+      font-size: 1rem;
+      cursor: default;
+      word-break: break-word;
+      padding: 2px 4px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: inherit;
+    }
+
+    .item.done .item-text {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+
+    .item-text:focus {
+      outline: none;
+      border-color: #c9a84c;
+      background: #0f1729;
+      cursor: text;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0 0.25rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .delete-btn:hover { color: #e05555; }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.85rem;
+      color: #666;
+      text-align: center;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    footer a {
+      color: #c9a84c;
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Get Out of the Cave!</h1>
+  <p id="instructions">You have five minutes to brainstorm something you can do or make and show to others. Go!</p>
+  <div id="timer-row">
+    <div id="timer">5:00</div>
+    <button id="done-btn">I'm done brainstorming</button>
+  </div>
+  <div id="app">
+    <form id="add-form">
+      <input id="new-item-input" type="text" placeholder="What else can you do?" autocomplete="off">
+      <button id="add-btn" type="submit">Add</button>
+    </form>
+    <ul id="list"></ul>
+  </div>
+
+  <footer>
+    Do you love "Get Out of the Cave!"? Do you hate it? What did you make and who did you show it to? I want to hear from you. My email is <a href="mailto:jordanwilcken@gmail.com">jordanwilcken@gmail.com</a>.
+  </footer>
+
+  <script>
+    const list = document.getElementById('list');
+    const form = document.getElementById('add-form');
+    const input = document.getElementById('new-item-input');
+
+    function createItem(text) {
+      const li = document.createElement('li');
+      li.className = 'item';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.addEventListener('change', () => {
+        li.classList.toggle('done', checkbox.checked);
+      });
+
+      const span = document.createElement('span');
+      span.className = 'item-text';
+      span.textContent = text;
+      span.title = 'Double-click to edit';
+
+      span.addEventListener('dblclick', () => {
+        span.contentEditable = 'true';
+        span.focus();
+        const range = document.createRange();
+        range.selectNodeContents(span);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+      });
+
+      span.addEventListener('blur', () => {
+        span.contentEditable = 'false';
+        if (!span.textContent.trim()) span.textContent = text;
+      });
+
+      span.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); span.blur(); }
+        if (e.key === 'Escape') { span.textContent = span._lastText ?? span.textContent; span.blur(); }
+      });
+
+      span.addEventListener('focus', () => { span._lastText = span.textContent; });
+
+      const del = document.createElement('button');
+      del.className = 'delete-btn';
+      del.textContent = '✕';
+      del.title = 'Delete';
+      del.addEventListener('click', () => li.remove());
+
+      li.append(checkbox, span, del);
+      return li;
+    }
+
+    list.appendChild(createItem('Get Out of the Cave'));
+
+    const timerEl = document.getElementById('timer');
+    const timerRow = document.getElementById('timer-row');
+    const instructionsEl = document.getElementById('instructions');
+    let remaining = 5 * 60;
+    let intervalId;
+
+    function endBrainstorming() {
+      clearInterval(intervalId);
+      timerRow.remove();
+      form.remove();
+      instructionsEl.textContent = "Brainstorming is over. It's time for action! You have until midnight to finish a first draft of one of these ideas and show it to others.";
+    }
+
+    function updateTimer() {
+      if (remaining === 0) { endBrainstorming(); return; }
+      const m = Math.floor(remaining / 60);
+      const s = remaining % 60;
+      timerEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+      timerEl.classList.toggle('urgent', remaining <= 60);
+      remaining--;
+    }
+
+    updateTimer();
+    intervalId = setInterval(updateTimer, 1000);
+
+    document.getElementById('done-btn').addEventListener('click', endBrainstorming);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      list.appendChild(createItem(text));
+      input.value = '';
+      input.focus();
+    });
+  </script>
+</body>
+</html>
