@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>When People Eat Pigs</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3"></script>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #0f1f35;
+            color: #e2eaf4;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2.5rem 2rem;
+            gap: 2.5rem;
+        }
+
+        h1 {
+            font-size: clamp(1.98rem, 4.4vw, 3.3rem);
+            font-weight: 800;
+            color: #fbbf24;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* ── Top row: slider (left) + counter (true center) ── */
+        .top-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+            align-items: center;
+            width: 100%;
+        }
+
+        /* ── Slider ── */
+        .slider-wrap {
+            justify-self: start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .slider-cap {
+            font-size: 0.88rem;
+            color: #8da8c8;
+        }
+
+        #meatSlider {
+            writing-mode: vertical-lr;
+            direction: rtl;
+            height: 220px;
+            width: 28px;
+            cursor: pointer;
+            accent-color: #fbbf24;
+        }
+
+        .slider-title {
+            margin-top: 0.25rem;
+            font-size: 0.83rem;
+            color: #5d7fa8;
+            text-align: center;
+            line-height: 1.5;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            max-width: 9rem;
+        }
+
+        /* ── Counter ── */
+        .counter-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .counter-number {
+            font-size: clamp(2.64rem, 4.6vw, 4.22rem);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: #fbbf24;
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+            min-width: 14ch;
+            text-align: center;
+        }
+
+        .counter-sublabel {
+            font-size: 0.97rem;
+            color: #8da8c8;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .eater-display {
+            margin-top: 1.25rem;
+            font-size: 1.05rem;
+            color: #8da8c8;
+        }
+
+        .eater-display strong {
+            color: #fbbf24;
+        }
+
+        /* ── Bottom row: time-window + chart ── */
+        .bottom-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        /* ── Time window ── */
+        .time-wrap {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            padding-top: 1rem;
+        }
+
+        .time-wrap-title {
+            font-size: 0.83rem;
+            color: #5d7fa8;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            text-align: center;
+        }
+
+        .time-field {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .time-field label {
+            font-size: 0.83rem;
+            color: #8da8c8;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .time-field input[type="number"] {
+            width: 5.5rem;
+            padding: 0.35rem 0.5rem;
+            background: #1a3254;
+            border: 1px solid #2d4f7c;
+            border-radius: 4px;
+            color: #e2eaf4;
+            font-size: 0.97rem;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+            outline: none;
+        }
+
+        .time-field input[type="number"]:focus {
+            border-color: #fbbf24;
+        }
+
+        /* ── Chart ── */
+        .chart-wrap {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* ── Quote ── */
+        blockquote {
+            max-width: 680px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 1.05rem;
+            font-style: italic;
+            color: #8da8c8;
+            line-height: 1.7;
+        }
+
+        footer {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #5d7fa8;
+            text-align: center;
+            max-width: 480px;
+            line-height: 1.6;
+        }
+
+        footer a {
+            color: #fbbf24;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        blockquote cite {
+            display: block;
+            margin-top: 0.6rem;
+            font-style: normal;
+            font-size: 0.88rem;
+            color: #5d7fa8;
+            letter-spacing: 0.04em;
+        }
+    </style>
+</head>
+<body>
+
+<h1>When People Eat Pigs</h1>
+
+<div class="dashboard">
+
+    <div class="top-row">
+        <div class="slider-wrap">
+            <span class="slider-cap">6.0B</span>
+            <input type="range" id="meatSlider"
+                   min="0" max="6000000000" step="10000000" value="3000000000">
+            <span class="slider-cap">0</span>
+            <div class="slider-title">What happens when fewer people eat pigs?</div>
+        </div>
+
+        <div class="counter-wrap">
+            <div class="counter-number" id="counter">—</div>
+            <div class="counter-sublabel">pigs killed this year</div>
+            <div class="eater-display">
+                for <strong id="eaterLabel">3.0</strong>B people who wanted to eat them
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-row">
+        <div class="time-wrap">
+            <div class="time-wrap-title">Time<br>Window</div>
+            <div class="time-field">
+                <label for="yearStart">From</label>
+                <input type="number" id="yearStart" min="2021" max="2046" value="2025">
+            </div>
+            <div class="time-field">
+                <label for="yearEnd">To</label>
+                <input type="number" id="yearEnd" min="2021" max="2046" value="2035">
+            </div>
+        </div>
+
+        <div class="chart-wrap">
+            <canvas id="pigChart"></canvas>
+        </div>
+    </div>
+
+    <blockquote>
+        "When I see bacon, I see a pig… a little friend, and that's why I can't eat it."
+        <cite>— Paul McCartney</cite>
+    </blockquote>
+
+</div>
+
+<footer>
+    I have spoken in favor of the pigs. Do you agree? What do you think? You can email me at
+    <a href="mailto:jordanwilcken@gmail.com">jordanwilcken@gmail.com</a>.
+</footer>
+
+<script>
+    const BASE_PIGS_PER_YEAR    = 1.4e9;
+    const BASE_MEAT_EATERS      = 3.0e9;
+    const CURRENT_YEAR          = new Date().getFullYear();
+    const CUMULATIVE_START_YEAR = 2021;
+    const YEAR_MIN              = 2021;
+    const YEAR_MAX              = 2046;
+
+    let meatEaters  = BASE_MEAT_EATERS;
+    let pigsPerYear = BASE_PIGS_PER_YEAR;
+    let startCount  = 0;
+    let startTime   = Date.now();
+    let windowStart = 2025;
+    let windowEnd   = 2035;
+
+    // ── Counter ──────────────────────────────────────────────
+
+    function initCounter() {
+        const now         = new Date();
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        const secElapsed  = (now - startOfYear) / 1000;
+        startCount = (pigsPerYear / (365.25 * 24 * 3600)) * secElapsed;
+        startTime  = Date.now();
+    }
+
+    function getCurrentCount() {
+        const pps = pigsPerYear / (365.25 * 24 * 3600);
+        return startCount + pps * ((Date.now() - startTime) / 1000);
+    }
+
+    function tick() {
+        document.getElementById('counter').textContent =
+            Math.floor(getCurrentCount()).toLocaleString();
+        requestAnimationFrame(tick);
+    }
+
+    // ── Meat slider ──────────────────────────────────────────
+
+    document.getElementById('meatSlider').addEventListener('input', e => {
+        const prev  = getCurrentCount();
+        meatEaters  = Number(e.target.value);
+        pigsPerYear = (meatEaters / BASE_MEAT_EATERS) * BASE_PIGS_PER_YEAR;
+        startCount  = prev;
+        startTime   = Date.now();
+        document.getElementById('eaterLabel').textContent =
+            (meatEaters / 1e9).toFixed(1);
+        updateChart();
+    });
+
+    // ── Year window inputs ────────────────────────────────────
+
+    function clampYear(v) {
+        return Math.max(YEAR_MIN, Math.min(YEAR_MAX, Math.round(v)));
+    }
+
+    document.getElementById('yearStart').addEventListener('change', e => {
+        let v = clampYear(Number(e.target.value));
+        if (v > windowEnd) v = windowEnd;
+        windowStart = v;
+        e.target.value = v;
+        updateChart();
+    });
+
+    document.getElementById('yearEnd').addEventListener('change', e => {
+        let v = clampYear(Number(e.target.value));
+        if (v < windowStart) v = windowStart;
+        windowEnd = v;
+        e.target.value = v;
+        updateChart();
+    });
+
+    // ── Chart ────────────────────────────────────────────────
+
+    function getYears() {
+        const out = [];
+        for (let y = windowStart; y <= windowEnd; y++) out.push(y);
+        return out;
+    }
+
+    function getLineData(years) {
+        // Cumulative pigs killed since CUMULATIVE_START_YEAR.
+        // Historical rate (up to CURRENT_YEAR) is always the baseline.
+        // From CURRENT_YEAR onward the rate scales with the slider.
+        const historicalRate = BASE_PIGS_PER_YEAR;
+        const futureRate     = pigsPerYear;
+        const pivotCount     = (CURRENT_YEAR - CUMULATIVE_START_YEAR) * historicalRate;
+
+        return years.map(y => {
+            if (y <= CURRENT_YEAR) {
+                return ((y - CUMULATIVE_START_YEAR) * historicalRate) / 1e9;
+            }
+            return (pivotCount + (y - CURRENT_YEAR) * futureRate) / 1e9;
+        });
+    }
+
+    const ctx = document.getElementById('pigChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: getYears(),
+            datasets: [{
+                data: getLineData(getYears()),
+                borderColor: '#60a5fa',
+                backgroundColor: 'rgba(96, 165, 250, 0.12)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0,
+                pointRadius: 0,
+                pointHoverRadius: 0,
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: { duration: 0 },
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false },
+                title: {
+                    display: true,
+                    text: 'Pigs Killed Since 2021',
+                    color: '#8da8c8',
+                    font: { size: 18, weight: '600' },
+                    padding: { bottom: 12 },
+                },
+                annotation: {
+                    annotations: {
+                        todayLine: {
+                            type: 'line',
+                            scaleID: 'x',
+                            value: CURRENT_YEAR,
+                            borderColor: 'rgba(255,255,255,0.3)',
+                            borderWidth: 1.5,
+                            borderDash: [5, 5],
+                            display: CURRENT_YEAR >= windowStart && CURRENT_YEAR <= windowEnd,
+                            label: {
+                                content: 'Today',
+                                display: true,
+                                position: 'start',
+                                color: 'rgba(255,255,255,0.5)',
+                                font: { size: 12 },
+                                backgroundColor: 'transparent',
+                                yAdjust: -10,
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid:   { color: 'rgba(255,255,255,0.06)' },
+                    border: { color: 'rgba(255,255,255,0.1)' },
+                    ticks:  {
+                        color: '#8da8c8',
+                        maxTicksLimit: 9,
+                        font: { size: 12 },
+                    },
+                },
+                y: {
+                    min: 0,
+                    grid:   { color: 'rgba(255,255,255,0.06)' },
+                    border: { color: 'rgba(255,255,255,0.1)' },
+                    ticks:  {
+                        color: '#8da8c8',
+                        font: { size: 12 },
+                        callback: v => v >= 10 ? Math.round(v) + 'B' : v.toFixed(1) + 'B',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Total Pigs Killed',
+                        color: '#5d7fa8',
+                        font: { size: 12 },
+                    }
+                }
+            }
+        }
+    });
+
+    function updateChart() {
+        const years = getYears();
+        chart.data.labels = years;
+        chart.data.datasets[0].data = getLineData(years);
+        chart.options.plugins.annotation.annotations.todayLine.display =
+            CURRENT_YEAR >= windowStart && CURRENT_YEAR <= windowEnd;
+        chart.update('none');
+    }
+
+    // ── Boot ─────────────────────────────────────────────────
+
+    initCounter();
+    tick();
+</script>
+
+</body>
+</html>
